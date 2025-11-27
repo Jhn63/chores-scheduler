@@ -8,17 +8,22 @@ import (
 	"time"
 )
 
+const MAX_TODO_TASKS = 5
+
 func (th *TaskHandler) Init() {
 	th.Load("saves.json")
+	defer th.Save()
 
 	currentDate := time.Now().Truncate(24 * time.Hour)
-	if len(th.TodoTask) >= 5 && !th.LastDate.IsZero() && th.LastDate.Equal(currentDate) {
-		return
+	if th.LastDate.IsZero() || th.LastDate.Before(currentDate) {
+		th.LastDate = currentDate
+		th.ClearTasks()
+		th.GetTasks(MAX_TODO_TASKS)
 	}
 
-	th.LastDate = currentDate
-	th.GetTodayTasks()
-	th.Save()
+	if len(th.TodoTask) < MAX_TODO_TASKS {
+		th.GetTasks(MAX_TODO_TASKS - len(th.TodoTask))
+	}
 }
 
 func (th *TaskHandler) Load(path string) {
@@ -45,6 +50,16 @@ func (th *TaskHandler) Save() {
 	}
 }
 
+func (th *TaskHandler) GetTasks(num int) {
+	th.TodoTask = append(th.TodoTask, th.AllTasks[:num]...) //inserting in todo tasks
+	th.AllTasks = th.AllTasks[num:]                         //removing from all tasks
+}
+
+func (th *TaskHandler) ClearTasks() {
+	th.AllTasks = append(th.AllTasks, th.TodoTask...)
+	th.TodoTask = []Task{}
+}
+
 func (th *TaskHandler) NewTask(id int, title string, dscrptn string, reapt bool) {
 	task := Task{
 		Id:          id,
@@ -53,17 +68,6 @@ func (th *TaskHandler) NewTask(id int, title string, dscrptn string, reapt bool)
 		Repetable:   reapt,
 	}
 	th.AllTasks = append(th.AllTasks, task)
-}
-
-func (th *TaskHandler) GetTodayTasks() {
-	if len(th.TodoTask) > 0 {
-		th.AllTasks = append(th.AllTasks, th.TodoTask...)
-		th.TodoTask = []Task{}
-	}
-
-	length := min(5, len(th.AllTasks))
-	th.TodoTask = append(th.TodoTask, th.AllTasks[:length]...) //inserting in todo tasks
-	th.AllTasks = th.AllTasks[length:]                         //removing from all tasks
 }
 
 func (th *TaskHandler) SetTaskDone(id int) {
