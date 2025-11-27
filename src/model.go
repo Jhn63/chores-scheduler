@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 type Task struct {
 	Id          int    `json:"id"`
 	Title       string `json:"Title"`
@@ -8,6 +10,7 @@ type Task struct {
 }
 
 type TaskHandler struct {
-	TodoTask []Task `json:"todo-tasks"`
-	AllTasks []Task `json:"all-tasks"`
+	LastDate time.Time `json:"last-date"`
+	TodoTask []Task    `json:"todo-tasks"`
+	AllTasks []Task    `json:"all-tasks"`
 }

@@ -5,12 +5,27 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
+
+func (th *TaskHandler) Init() {
+	th.Load("saves.json")
+
+	currentDate := time.Now().Truncate(24 * time.Hour)
+	if len(th.TodoTask) >= 5 && !th.LastDate.IsZero() && th.LastDate.Equal(currentDate) {
+		return
+	}
+
+	th.LastDate = currentDate
+	th.GetTodayTasks()
+	th.Save()
+}
 
 func (th *TaskHandler) Load(path string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Fatal("Couldn't load file")
+		th.Save()
+		return
 	}
 
 	if err := json.Unmarshal(data, &th); err != nil {
@@ -41,11 +56,14 @@ func (th *TaskHandler) NewTask(id int, title string, dscrptn string, reapt bool)
 }
 
 func (th *TaskHandler) GetTodayTasks() {
-	if len(th.AllTasks) >= 5 {
-		th.TodoTask = append(th.TodoTask, th.AllTasks[:5]...)
-	} else {
-		th.TodoTask = append(th.TodoTask, th.AllTasks...)
+	if len(th.TodoTask) > 0 {
+		th.AllTasks = append(th.AllTasks, th.TodoTask...)
+		th.TodoTask = []Task{}
 	}
+
+	length := min(5, len(th.AllTasks))
+	th.TodoTask = append(th.TodoTask, th.AllTasks[:length]...) //inserting in todo tasks
+	th.AllTasks = th.AllTasks[length:]                         //removing from all tasks
 }
 
 func (th *TaskHandler) SetTaskDone(id int) {
@@ -53,7 +71,11 @@ func (th *TaskHandler) SetTaskDone(id int) {
 	for i, task := range th.TodoTask {
 		if task.Id == id {
 
-			th.TodoTask = append(th.TodoTask[:i], th.TodoTask[i+1:]...)
+			th.TodoTask = append(th.TodoTask[:i], th.TodoTask[i+1:]...) //removing from todo tasks
+
+			if task.Repetable {
+				th.AllTasks = append(th.AllTasks, task) //adding back to all tasks
+			}
 			break
 		}
 	}
