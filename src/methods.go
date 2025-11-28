@@ -18,10 +18,10 @@ func (th *TaskHandler) Init() {
 	if th.LastDate.IsZero() || th.LastDate.Before(currentDate) {
 		th.LastDate = currentDate
 		th.ClearTasks()
-		th.GetTasks(MAX_TODO_TASKS)
+		th.GetTasks(MAX_TODO_TASKS) //bug
 	}
 
-	if len(th.TodoTask) < MAX_TODO_TASKS {
+	if len(th.TodoTask) < MAX_TODO_TASKS { //bug
 		th.GetTasks(MAX_TODO_TASKS - len(th.TodoTask))
 	}
 }
