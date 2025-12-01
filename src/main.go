@@ -30,13 +30,25 @@ func main() {
 	switch os.Args[1] {
 	case "list-tasks":
 		all := append(th.AllTasks, th.TodoTask...)
-		for _, task := range all {
-			printTask(task)
+		if len(all) == 0 {
+			fmt.Println("No tasks available.")
+
+		} else {
+
+			for _, task := range all {
+				printTask(task)
+			}
 		}
 
 	case "get-tasks":
-		for _, task := range th.TodoTask {
-			printTask(task)
+		if len(th.TodoTask) == 0 {
+			fmt.Println("No more tasks for today.")
+
+		} else {
+			fmt.Println("Today's tasks:")
+			for _, task := range th.TodoTask {
+				printTask(task)
+			}
 		}
 
 	case "set-done":
@@ -85,6 +97,11 @@ func main() {
 		}
 
 		th.NewTask(id, title, description, repetable)
+
+	default:
+		fmt.Println("Unknown command.")
+		return
+
 	}
 	th.Save()
 }
