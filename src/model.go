@@ -10,7 +10,8 @@ type Task struct {
 }
 
 type TaskHandler struct {
-	LastDate time.Time `json:"last-date"`
-	TodoTask []Task    `json:"todo-tasks"`
-	AllTasks []Task    `json:"all-tasks"`
+	LastDate  time.Time `json:"last-date"`
+	TodoTask  []Task    `json:"todo-tasks"`
+	AllTasks  []Task    `json:"all-tasks"`
+	CountTask int       `json:"count-tasks"` //prevents todotask from being loaded multiple times a day
 }

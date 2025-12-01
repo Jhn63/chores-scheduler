@@ -14,15 +14,18 @@ func (th *TaskHandler) Init() {
 	th.Load("saves.json")
 	defer th.Save()
 
+	// check if its the firt interaction of the day
 	currentDate := time.Now().Truncate(24 * time.Hour)
 	if th.LastDate.IsZero() || th.LastDate.Before(currentDate) {
 		th.LastDate = currentDate
 		th.ClearTasks()
-		th.GetTasks(MAX_TODO_TASKS) //bug
 	}
 
-	if len(th.TodoTask) < MAX_TODO_TASKS { //bug
-		th.GetTasks(MAX_TODO_TASKS - len(th.TodoTask))
+	// load tasks to todo list if needed
+	numLoad := min(len(th.AllTasks)+len(th.TodoTask), MAX_TODO_TASKS)
+	if th.CountTask < numLoad {
+		th.GetTasks(numLoad - th.CountTask)
+		th.CountTask += numLoad - th.CountTask
 	}
 }
 
@@ -58,6 +61,7 @@ func (th *TaskHandler) GetTasks(num int) {
 func (th *TaskHandler) ClearTasks() {
 	th.AllTasks = append(th.AllTasks, th.TodoTask...)
 	th.TodoTask = []Task{}
+	th.CountTask = 0
 }
 
 func (th *TaskHandler) NewTask(id int, title string, dscrptn string, reapt bool) {
