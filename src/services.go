@@ -88,6 +88,7 @@ func updateTaskService(id int, task TaskUpdate) (Task, error) {
 		&updatedTask.Description,
 		&updatedTask.DegreeOfDifficulty,
 		&updatedTask.Deadline,
+		&updatedTask.Repeatable,
 		&updatedTask.Active,
 	)
 
@@ -114,17 +115,17 @@ func deleteTaskService(id int) (Task, error) {
 	return task, nil
 }
 
-func getTasksService(limit int) ([]Task, error) {
-	rows, err := DB.Query("SELECT id, title, description, degree_of_difficulty, deadline, repeatable, active FROM tasks WHERE active = true LIMIT ?", limit)
+func getTasksService(limit int) ([]TaskRead, error) {
+	rows, err := DB.Query(`SELECT id, title, description, degree_of_difficulty, deadline FROM tasks WHERE active = true ORDER BY last_queued_at ASC LIMIT ?`, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var tasks []Task
+	var tasks []TaskRead
 	for rows.Next() {
-		var task Task
-		err := rows.Scan(&task.Id, &task.Title, &task.Description, &task.DegreeOfDifficulty, &task.Deadline, &task.Repeatable, &task.Active)
+		var task TaskRead
+		err := rows.Scan(&task.Id, &task.Title, &task.Description, &task.DegreeOfDifficulty, &task.Deadline)
 		if err != nil {
 			return nil, err
 		}
@@ -136,4 +137,52 @@ func getTasksService(limit int) ([]Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func getTaskByIDService(id int) (TaskRead, error) {
+	var task TaskRead
+	err := DB.QueryRow("SELECT id, title, description, degree_of_difficulty, deadline FROM tasks WHERE id = ?", id).Scan(
+		&task.Id,
+		&task.Title,
+		&task.Description,
+		&task.DegreeOfDifficulty,
+		&task.Deadline,
+	)
+	if err != nil {
+		return TaskRead{}, err
+	}
+	return task, nil
+}
+
+func getAllTasksService() ([]TaskRead, error) {
+	rows, err := DB.Query("SELECT id, title, description, degree_of_difficulty, deadline FROM tasks")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []TaskRead
+	for rows.Next() {
+		var task TaskRead
+		err := rows.Scan(&task.Id, &task.Title, &task.Description, &task.DegreeOfDifficulty, &task.Deadline)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func setDoneTaskService(id int) (TaskRead, error) {
+	_, err := DB.Exec("UPDATE tasks SET active = CASE WHEN repeatable = TRUE THEN TRUE ELSE FALSE END, last_queued_at = CASE WHEN repeatable = TRUE THEN CURRENT_TIMESTAMP ELSE last_queued_at END WHERE id = ?", id)
+	if err != nil {
+		return TaskRead{}, err
+	}
+
+	return getTaskByIDService(id)
 }
