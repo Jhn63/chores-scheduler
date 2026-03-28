@@ -22,6 +22,34 @@ const taskService = {
         } catch (error) {
             console.error('Erro ao enfileirar tarefas:', error);
         }
+    },
+
+    createTask: async (taskForm, setCreatedTask) => {
+        taskForm.preventDefault();
+        const formData = new FormData(taskForm.target);
+        const task = {
+            title: formData.get('title'),
+            description: formData.get('description'),
+            difficulty: parseInt(formData.get('difficulty')),
+            deadline: formData.get('deadline') === '' ? null : formData.get('deadline'),
+            repeatable: formData.get('repeatable') === 'on' ? true : false
+        };
+
+        try {
+            const newTask = await api.createTask(task);
+            setCreatedTask(false);
+            return newTask;
+        } catch (error) {
+            console.error('Erro ao criar tarefa:', error);  
+        }
+    },
+
+    setTaskDone: async (id) => {
+        try {
+            await api.setDone(id);
+        } catch (error) {
+            console.error('Erro ao marcar tarefa como concluída:', error);
+        }
     }
 }
 

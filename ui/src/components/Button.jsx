@@ -10,7 +10,7 @@ function GetButton({ onClick }) {
 function PostButton({ onClick }) {
     return (
         <button className="btn btn-secondary" onClick={onClick}>
-            New
+            Create Task
         </button>
     )
 }

@@ -19,6 +19,11 @@ const api = {
     queueTask: async (id) => {
         const response = await ax.patch(`/tasks/${id}/queue`)
         return response.data
+    },
+
+    setDone: async (id) => {
+        const response = await ax.patch(`/tasks/${id}/done`)
+        return response.data
     }
 }
 

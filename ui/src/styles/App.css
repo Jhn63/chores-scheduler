@@ -204,3 +204,11 @@
   width: 90%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
+
+.modal-content h2 {
+  color: #333;
+}
+
+.modal-content p {
+  color: #777;
+}
