@@ -14,8 +14,9 @@ func startServer() {
 	router.HandleFunc("GET /tasks/{id}", getTaskByID)
 	router.HandleFunc("GET /tasks/all", getAllTasks)
 	router.HandleFunc("POST /tasks", createTask)
-	router.HandleFunc("PUT /tasks/{id}", updateTask)
-	router.HandleFunc("POST /tasks/{id}/done", setDoneTask)
+	router.HandleFunc("PATCH /tasks/{id}", updateTask)
+	router.HandleFunc("PATCH /tasks/{id}/done", setDoneTask)
+	router.HandleFunc("PATCH /tasks/{id}/queue", queueTask)
 	router.HandleFunc("DELETE /tasks/{id}", deleteTask)
 
 	fmt.Println("Server is running on port 8000...")
@@ -28,7 +29,7 @@ func startServer() {
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
@@ -166,6 +167,25 @@ func setDoneTask(w http.ResponseWriter, r *http.Request) {
 	task, err := setDoneTaskService(taskID)
 	if err != nil {
 		http.Error(w, "Fail Setting Task as Done", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(task)
+}
+
+func queueTask(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	taskID, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Invalid task ID. Must be a number.", http.StatusBadRequest)
+		return
+	}
+
+	task, err := queueTaskService(taskID)
+	if err != nil {
+		http.Error(w, "Fail Queueing Task", http.StatusInternalServerError)
 		return
 	}
 

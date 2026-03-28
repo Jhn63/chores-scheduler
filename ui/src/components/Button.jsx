@@ -2,7 +2,7 @@
 function GetButton({ onClick }) {
     return (
         <button className="btn btn-primary" onClick={onClick}>
-            Click me
+            Change Tasks
         </button>
     )
 }

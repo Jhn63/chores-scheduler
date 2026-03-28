@@ -186,3 +186,12 @@ func setDoneTaskService(id int) (TaskRead, error) {
 
 	return getTaskByIDService(id)
 }
+
+func queueTaskService(id int) (TaskRead, error) {
+	_, err := DB.Exec("UPDATE tasks SET last_queued_at = CURRENT_TIMESTAMP WHERE id = ?", id)
+	if err != nil {
+		return TaskRead{}, err
+	}
+
+	return getTaskByIDService(id)
+}

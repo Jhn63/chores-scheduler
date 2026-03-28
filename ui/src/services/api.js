@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const ax = axios.create({
   baseURL: 'http://localhost:8000',
-  timeout: 100000,
+  timeout: 1000,
 })
 
 const api = {
@@ -11,10 +11,15 @@ const api = {
         return response.data
     },
 
-    postTask: async (task) => {
+    createTask: async (task) => {
         const response = await ax.post('/tasks', task)
         return response.data
     },
+
+    queueTask: async (id) => {
+        const response = await ax.patch(`/tasks/${id}/queue`)
+        return response.data
+    }
 }
 
 export default api
