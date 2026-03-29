@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { GetButton, PostButton } from './components/Button'
 import { TaskFullview, TasksContainer, CreateTaskForm } from './components/Task'
 import taskService from './services/taskService'
@@ -10,10 +10,6 @@ function App() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [createTask, setCreateTask] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    taskService.loadTasks(setTasks, setLoading);
-  }, []); 
 
   return (
     <>

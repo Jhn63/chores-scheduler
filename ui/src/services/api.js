@@ -7,7 +7,7 @@ const ax = axios.create({
 
 const api = {
     getTasks: async () => {
-        const response = await ax.get('/tasks')
+        const response = await ax.get('/tasks?limit=5')
         return response.data
     },
 
