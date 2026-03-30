@@ -122,16 +122,36 @@ func deleteTaskService(id int) (Task, error) {
 }
 
 func getTasksService(limit int) ([]TaskRead, error) {
-	rows, err := DB.Query(`SELECT id, title, description, degree_of_difficulty, deadline FROM tasks WHERE active = true ORDER BY last_queued_at ASC LIMIT ?`, limit)
+	var tasks []TaskRead
+	var score float64
+
+	const scoringQuery = `
+		SELECT 
+			id, title, description, degree_of_difficulty, deadline,
+			(
+				(degree_of_importance * 10) + 
+				(degree_of_difficulty * 2) + 
+				(CASE 
+					WHEN deadline IS NULL THEN 0 
+					ELSE (1000000 / (unixepoch(deadline) - unixepoch('now') + 1)) 
+				END) +
+				((unixepoch('now') - unixepoch(last_queued_at)) / 3600)
+			) AS priority_score
+		FROM tasks 
+		WHERE active = true
+		ORDER BY priority_score DESC 
+		LIMIT ?
+	`
+
+	rows, err := DB.Query(scoringQuery, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var tasks []TaskRead
 	for rows.Next() {
 		var task TaskRead
-		err := rows.Scan(&task.Id, &task.Title, &task.Description, &task.DegreeOfDifficulty, &task.Deadline)
+		err := rows.Scan(&task.Id, &task.Title, &task.Description, &task.DegreeOfDifficulty, &task.Deadline, &score)
 		if err != nil {
 			return nil, err
 		}
