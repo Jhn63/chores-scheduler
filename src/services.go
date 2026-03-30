@@ -8,13 +8,13 @@ import (
 )
 
 func createTaskService(task TaskCreate) (Task, error) {
-	stmt, err := DB.Prepare("INSERT INTO tasks (title, description, degree_of_difficulty, deadline, repeatable, active) VALUES (?, ?, ?, ?, ?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO tasks (title, description, degree_of_difficulty, degree_of_importance, deadline, repeatable, active) VALUES (?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return Task{}, err
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(task.Title, task.Description, task.DegreeOfDifficulty, task.Deadline, task.Repeatable, true)
+	res, err := stmt.Exec(task.Title, task.Description, task.DegreeOfDifficulty, task.DegreeOfImportance, task.Deadline, task.Repeatable, true)
 	if err != nil {
 		return Task{}, err
 	}
@@ -29,6 +29,7 @@ func createTaskService(task TaskCreate) (Task, error) {
 		Title:              task.Title,
 		Description:        task.Description,
 		DegreeOfDifficulty: task.DegreeOfDifficulty,
+		DegreeOfImportance: task.DegreeOfImportance,
 		Deadline:           task.Deadline,
 		Repeatable:         task.Repeatable,
 		Active:             true,
@@ -55,6 +56,10 @@ func updateTaskService(id int, task TaskUpdate) (Task, error) {
 		setClauses = append(setClauses, "degree_of_difficulty = ?")
 		args = append(args, *task.DegreeOfDifficulty)
 	}
+	if task.DegreeOfImportance != nil {
+		setClauses = append(setClauses, "degree_of_importance = ?")
+		args = append(args, *task.DegreeOfImportance)
+	}
 	if task.Deadline != nil {
 		setClauses = append(setClauses, "deadline = ?")
 		args = append(args, *task.Deadline)
@@ -78,7 +83,7 @@ func updateTaskService(id int, task TaskUpdate) (Task, error) {
 	}
 
 	row := DB.QueryRow(`
-		SELECT id, title, description, degree_of_difficulty, deadline, repeatable, active 
+		SELECT id, title, description, degree_of_difficulty, degree_of_importance, deadline, repeatable, active 
 		FROM tasks WHERE id = ?`, id,
 	)
 
@@ -87,6 +92,7 @@ func updateTaskService(id int, task TaskUpdate) (Task, error) {
 		&updatedTask.Title,
 		&updatedTask.Description,
 		&updatedTask.DegreeOfDifficulty,
+		&updatedTask.DegreeOfImportance,
 		&updatedTask.Deadline,
 		&updatedTask.Repeatable,
 		&updatedTask.Active,

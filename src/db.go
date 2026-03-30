@@ -32,6 +32,7 @@ func createTables() {
 		title TEXT NOT NULL,
 		description TEXT,
 		degree_of_difficulty INTEGER,
+		degree_of_importance INTEGER,
 		deadline DATETIME,
 		last_queued_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		repeatable BOOLEAN,

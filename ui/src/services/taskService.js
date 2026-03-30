@@ -31,6 +31,7 @@ const taskService = {
             title: formData.get('title'),
             description: formData.get('description'),
             degree_of_difficulty: parseInt(formData.get('difficulty')),
+            degree_of_importance: parseInt(formData.get('importance')),
             deadline: formData.get('deadline') === '' ? null : `${formData.get('deadline')}T23:59:00Z`,
             repeatable: formData.get('repeatable') === 'on' ? true : false
         };
