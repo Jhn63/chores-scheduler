@@ -30,11 +30,11 @@ const taskService = {
         const task = {
             title: formData.get('title'),
             description: formData.get('description'),
-            difficulty: parseInt(formData.get('difficulty')),
-            deadline: formData.get('deadline') === '' ? null : formData.get('deadline'),
+            degree_of_difficulty: parseInt(formData.get('difficulty')),
+            deadline: formData.get('deadline') === '' ? null : `${formData.get('deadline')}T23:59:00Z`,
             repeatable: formData.get('repeatable') === 'on' ? true : false
         };
-
+        
         try {
             const newTask = await api.createTask(task);
             setCreatedTask(false);
@@ -42,6 +42,7 @@ const taskService = {
         } catch (error) {
             console.error('Erro ao criar tarefa:', error);  
         }
+        
     },
 
     setTaskDone: async (id) => {

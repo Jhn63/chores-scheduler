@@ -17,14 +17,14 @@ type TaskRead struct {
 	Id                 int        `json:"id"`
 	Title              string     `json:"title"`
 	Description        string     `json:"description"`
-	DegreeOfDifficulty int        `json:"degree-of-difficulty"`
+	DegreeOfDifficulty int        `json:"degree_of_difficulty"`
 	Deadline           *time.Time `json:"deadline"`
 }
 
 type TaskCreate struct {
 	Title              string     `json:"title"`
 	Description        string     `json:"description"`
-	DegreeOfDifficulty int        `json:"degree-of-difficulty"`
+	DegreeOfDifficulty int        `json:"degree_of_difficulty"`
 	Deadline           *time.Time `json:"deadline"`
 	Repeatable         bool       `json:"repeatable"`
 }
@@ -32,7 +32,7 @@ type TaskCreate struct {
 type TaskUpdate struct {
 	Title              *string    `json:"title"`
 	Description        *string    `json:"description"`
-	DegreeOfDifficulty *int       `json:"degree-of-difficulty"`
+	DegreeOfDifficulty *int       `json:"degree_of_difficulty"`
 	Deadline           *time.Time `json:"deadline"`
 	Repeatable         *bool      `json:"repeatable"`
 }
